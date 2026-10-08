@@ -67,9 +67,7 @@
     "tw-animate-css": "1.3.8",
     "vaul": "1.1.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-	"esbuild": "^0.25.0",
-	"@type/react": "^18.3.18"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.19.1",
@@ -79,7 +77,8 @@
     "oxlint": "^1.87.0",
     "typescript": "~6.0.2",
     "vite": "^8.3.3",
-    "tailwindcss": "4.1.12"
+    "tailwindcss": "4.1.12",
+	"esbuild": "^0.28.0"
   },
   "peerDependencies": {
     "react": "18.3.1",
