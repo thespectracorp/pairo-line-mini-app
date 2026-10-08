@@ -87,7 +87,7 @@ export function ProfileScreen() {
         </section>
         <div className="profile-menu">{menuItems.map(({ label, subtitle, icon: Icon }) => <button className="profile-menu-item" key={label}><span className="profile-menu-icon"><Icon size={18} /></span><span><p className="profile-menu-label">{label}</p><p className="profile-menu-subtitle">{subtitle}</p></span></button>)}</div>
         {errorMessage && <p className="screen-error" role="alert">{errorMessage}</p>}
-        <p className="version">Pairo by Spectra v1.0.4</p>
+        <p className="version">Pairo by Spectra v1.0.5</p>
       </div>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}><DialogContent className="profile-edit-dialog"><DialogHeader><DialogTitle>Edit profile</DialogTitle><DialogDescription>Update the name and email shown on your profile.</DialogDescription></DialogHeader><div className="profile-edit-form"><label htmlFor="profile-name">Name</label><input id="profile-name" value={editName} onChange={(event) => setEditName(event.target.value)} /><label htmlFor="profile-email">Email</label><input id="profile-email" type="email" value={editEmail} onChange={(event) => setEditEmail(event.target.value)} /></div>{errorMessage && <p className="upload-error" role="alert">{errorMessage}</p>}<div className="confirm-actions"><Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button><Button className="pink-button" onClick={() => void handleSaveProfile()} disabled={isSaving}>{isSaving ? 'Saving…' : 'Save'}</Button></div></DialogContent></Dialog>
     </div>
