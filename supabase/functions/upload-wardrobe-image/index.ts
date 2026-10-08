@@ -14,9 +14,7 @@ Deno.serve(async (request: Request) => {
   if (request.method === 'OPTIONS') return new Response(null, { status: 200, headers: corsHeaders });
 
   try {
-    const authorization = request.headers.get('Authorization');
-    if (!authorization) return new Response(JSON.stringify({ error: 'Authentication required' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, { global: { headers: { Authorization: authorization } } });
+    const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!);
     if (request.method === 'DELETE') {
       const body = await request.json() as { id?: string };
       if (!body.id) return new Response(JSON.stringify({ error: 'Invalid item' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

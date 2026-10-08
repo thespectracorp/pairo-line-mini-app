@@ -3,7 +3,7 @@ import { Eye, LoaderCircle, Palette, Save, Trash2, X } from 'lucide-react';
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { ensureSession, supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { categoryLabels, type WardrobeItem } from '../types/wardrobe';
 import { combineImagesVertically, imageBlobToDataUrl } from '../lib/combineImages';
 
@@ -38,7 +38,6 @@ export function DressScreen() {
   useEffect(() => {
     const loadItems = async () => {
       try {
-        await ensureSession();
         const { data, error } = await supabase.from('wardrobe_items').select('id, category, image_url, created_at').order('created_at', { ascending: false });
         if (error) throw error;
         setItems((data ?? []) as WardrobeItem[]);
@@ -86,8 +85,7 @@ export function DressScreen() {
       const formData = new FormData();
       formData.append('file', new File([blob], 'saved-outfit.jpg', { type: 'image/jpeg' }));
       formData.append('category', 'outfits');
-      const accessToken = await ensureSession();
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'POST', headers: { Authorization: `Bearer ${accessToken}` }, body: formData });
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'POST', body: formData });
       if (!response.ok) throw new Error('save failed');
       const result = await response.json() as { item?: WardrobeItem };
       if (!result.item) throw new Error('invalid response');
@@ -109,8 +107,7 @@ export function DressScreen() {
     setIsDeleting(true);
     setErrorMessage('');
     try {
-      const accessToken = await ensureSession();
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ id: selectedItem.id }) });
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: selectedItem.id }) });
       if (!response.ok) throw new Error('delete failed');
       setItems((currentItems) => currentItems.filter((item) => item.id !== selectedItem.id));
       setSelectedItem(null);
