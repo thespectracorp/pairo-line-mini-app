@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { supabase } from '../lib/supabase';
+import { getCustomerKey } from '../lib/customer';
 import { categoryLabels, type WardrobeItem } from '../types/wardrobe';
 import { combineImagesVertically, imageBlobToDataUrl } from '../lib/combineImages';
 
@@ -34,11 +35,14 @@ export function DressScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState('');
+  const [customerKey, setCustomerKey] = useState('');
 
   useEffect(() => {
     const loadItems = async () => {
       try {
-        const { data, error } = await supabase.from('wardrobe_items').select('id, category, image_url, created_at').order('created_at', { ascending: false });
+        const key = await getCustomerKey();
+        setCustomerKey(key);
+        const { data, error } = await supabase.from('wardrobe_items').select('id, category, image_url, created_at').eq('customer_key', key).order('created_at', { ascending: false });
         if (error) throw error;
         setItems((data ?? []) as WardrobeItem[]);
       } catch (error) {
@@ -85,6 +89,7 @@ export function DressScreen() {
       const formData = new FormData();
       formData.append('file', new File([blob], 'saved-outfit.jpg', { type: 'image/jpeg' }));
       formData.append('category', 'outfits');
+      formData.append('customer_key', customerKey || await getCustomerKey());
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'POST', body: formData });
       if (!response.ok) throw new Error('save failed');
       const result = await response.json() as { item?: WardrobeItem };
@@ -107,7 +112,7 @@ export function DressScreen() {
     setIsDeleting(true);
     setErrorMessage('');
     try {
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: selectedItem.id }) });
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-wardrobe-image`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: selectedItem.id, customer_key: customerKey || await getCustomerKey() }) });
       if (!response.ok) throw new Error('delete failed');
       setItems((currentItems) => currentItems.filter((item) => item.id !== selectedItem.id));
       setSelectedItem(null);

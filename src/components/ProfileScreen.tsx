@@ -3,6 +3,7 @@ import { HelpCircle, Pencil, Settings, Share2, User } from 'lucide-react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { supabase } from '../lib/supabase';
+import { getCustomerKey } from '../lib/customer';
 
 interface ProfileData {
   user_id: string;
@@ -25,19 +26,22 @@ export function ProfileScreen() {
   const [editEmail, setEditEmail] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [customerKey, setCustomerKey] = useState('');
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
+        const key = await getCustomerKey();
+        setCustomerKey(key);
         const [{ data: profileData, error: profileError }, { data: items, error: itemsError }] = await Promise.all([
-          supabase.from('app_profile').select('id, display_name, email').eq('id', 'default').maybeSingle(),
-          supabase.from('wardrobe_items').select('category'),
+          supabase.from('app_profile').select('id, display_name, email').eq('id', key).maybeSingle(),
+          supabase.from('wardrobe_items').select('category').eq('customer_key', key),
         ]);
         if (profileError || itemsError) throw profileError ?? itemsError;
         const nextProfile = profileData as (ProfileData & { id: string }) | null;
         const displayName = nextProfile?.display_name || 'Fashion Lover';
         const email = nextProfile?.email || '';
-        setProfile(nextProfile ? { user_id: nextProfile.id, display_name: displayName, email } : { user_id: 'default', display_name: displayName, email });
+        setProfile(nextProfile ? { user_id: nextProfile.id, display_name: displayName, email } : { user_id: key, display_name: displayName, email });
         setEditName(displayName);
         setEditEmail(email);
         setOutfitCount((items ?? []).filter((item) => item.category === 'outfits').length);
@@ -60,10 +64,11 @@ export function ProfileScreen() {
     setIsSaving(true);
     setErrorMessage('');
     try {
-      const { data, error } = await supabase.from('app_profile').upsert({ id: 'default', display_name: displayName, email, updated_at: new Date().toISOString() }).select('id, display_name, email').maybeSingle();
-      if (error || !data) throw error ?? new Error('Could not save profile');
-      const savedProfile = data as { id: string; display_name: string; email: string };
-      setProfile({ user_id: savedProfile.id, display_name: savedProfile.display_name, email: savedProfile.email });
+      const key = customerKey || await getCustomerKey();
+      const { error } = await supabase.from('app_profile').upsert({ id: key, display_name: displayName, email, updated_at: new Date().toISOString() });
+      if (error) throw error;
+      setCustomerKey(key);
+      setProfile({ user_id: key, display_name: displayName, email });
       setIsEditOpen(false);
     } catch (error) {
       console.error('profile save failed', error);
@@ -83,7 +88,7 @@ export function ProfileScreen() {
         </section>
         <div className="profile-menu">{menuItems.map(({ label, subtitle, icon: Icon }) => <button className="profile-menu-item" key={label}><span className="profile-menu-icon"><Icon size={18} /></span><span><p className="profile-menu-label">{label}</p><p className="profile-menu-subtitle">{subtitle}</p></span></button>)}</div>
         {errorMessage && <p className="screen-error" role="alert">{errorMessage}</p>}
-        <p className="version">Pairo by Spectra v1.1.1</p>
+        <p className="version">Pairo by Spectra v1.0.5</p>
       </div>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}><DialogContent className="profile-edit-dialog"><DialogHeader><DialogTitle>Edit profile</DialogTitle><DialogDescription>Update the name and email shown on your profile.</DialogDescription></DialogHeader><div className="profile-edit-form"><label htmlFor="profile-name">Name</label><input id="profile-name" value={editName} onChange={(event) => setEditName(event.target.value)} /><label htmlFor="profile-email">Email</label><input id="profile-email" type="email" value={editEmail} onChange={(event) => setEditEmail(event.target.value)} /></div>{errorMessage && <p className="upload-error" role="alert">{errorMessage}</p>}<div className="confirm-actions"><Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button><Button className="pink-button" onClick={() => void handleSaveProfile()} disabled={isSaving}>{isSaving ? 'Saving…' : 'Save'}</Button></div></DialogContent></Dialog>
     </div>

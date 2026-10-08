@@ -6,7 +6,7 @@
 .welcome-copy { max-width: 310px; margin: 0 0 28px; color: #53627b; font-size: 16px; line-height: 1.7; }
 .welcome-image-frame { width: 100%; max-width: 314px; aspect-ratio: .88; padding: 27px; border-radius: 21px; background: linear-gradient(135deg, #ffd49e, #ffc6e5); }
 .welcome-image { width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 14px; }
-.welcome-button { width: 100%; max-width: 314px; }
+.welcome-button { align-self: center; width: 100%; max-width: 314px; }
 
 .bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; z-index: 20; display: flex; justify-content: space-around; padding: 12px 36px 13px; border-top: 1px solid #e7e9ee; background: rgba(255,255,255,.98); }
 .bottom-tab { display: flex; min-width: 52px; flex-direction: column; align-items: center; gap: 4px; border: 0; background: transparent; color: #9ba6b8; font-size: 11px; }
