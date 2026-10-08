@@ -107,6 +107,8 @@
 .profile-edit-dialog [data-slot="dialog-description"] { color: #718096; font-size: 12px; line-height: 1.5; }
 .profile-edit-form { display: grid; gap: 7px; margin-top: 5px; }
 .profile-edit-form label { color: #27344a; font-size: 12px; font-weight: 700; }
+.profile-edit-dialog .confirm-actions { margin-top: 16px; }
+.profile-edit-dialog .upload-error { margin-top: 12px; }
 .profile-edit-form input { width: 100%; height: 38px; padding: 0 11px; border: 1px solid #dfe2e8; border-radius: 9px; color: #1f2937; font: inherit; font-size: 13px; outline: none; }
 .profile-edit-form input:focus { border-color: #f456aa; box-shadow: 0 0 0 3px rgba(244,86,170,.12); }
 .notification-trigger { position: relative; }
