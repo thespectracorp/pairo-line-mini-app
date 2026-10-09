@@ -12,6 +12,11 @@ import { combineImagesVertically, imageBlobToDataUrl } from '../lib/combineImage
 type OutfitSlot = 'shirts' | 'pants' | 'shoes';
 const outfitSlots: OutfitSlot[] = ['shirts', 'pants', 'shoes'];
 
+interface DressScreenProps {
+  profileComplete: boolean;
+  onNeedProfile: () => void;
+}
+
 const formatOutfitDate = (value: string) => {
   const date = new Date(value);
   const day = String(date.getDate()).padStart(2, '0');
@@ -22,9 +27,10 @@ const formatOutfitDate = (value: string) => {
   return `${day} ${month}. ${year} ${hours}:${minutes}`;
 };
 
-export function DressScreen() {
+export function DressScreen({ profileComplete, onNeedProfile }: DressScreenProps) {
   const [items, setItems] = useState<WardrobeItem[]>([]);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
+  const [isRegisterPromptOpen, setIsRegisterPromptOpen] = useState(false);
   const [selectionSlot, setSelectionSlot] = useState<OutfitSlot | null>(null);
   const [selected, setSelected] = useState<Partial<Record<OutfitSlot, WardrobeItem>>>({});
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
@@ -133,13 +139,14 @@ export function DressScreen() {
         {isLoading ? <div className="empty-state"><LoaderCircle className="animate-spin" size={24} /><span>Loading saved outfits</span></div> : savedOutfits.length === 0 ? <div className="history-empty"><span>Your saved outfits will appear here.</span></div> : <div className="history-grid">{savedOutfits.map((item) => <button className="history-card" key={item.id} onClick={() => { setSelectedItem(item); setIsActionOpen(true); }}><div className="history-image outfit-history-image"><ImageWithFallback src={item.image_url} alt="Saved outfit" /></div><h3>{formatOutfitDate(item.created_at)}</h3><p>Shirt, pants and shoes</p></button>)}</div>}
       </div>
       {errorMessage && <p className="screen-error" role="alert">{errorMessage}</p>}
-      <div className="bottom-action"><Button className="pink-button" onClick={() => { setErrorMessage(''); setIsCustomizeOpen(true); }}><Palette size={15} /><span>Customize</span></Button></div>
+      <div className="bottom-action"><Button className="pink-button" onClick={() => { setErrorMessage(''); if (!profileComplete) { setIsRegisterPromptOpen(true); } else { setIsCustomizeOpen(true); } }}><Palette size={15} /><span>Customize</span></Button></div>
 
       <Dialog open={isCustomizeOpen} onOpenChange={setIsCustomizeOpen}><DialogContent className="customize-dialog"><DialogHeader><DialogTitle>Create Custom Outfit</DialogTitle><DialogDescription>Select shirt, pants, and shoes to create your perfect outfit combination.</DialogDescription></DialogHeader><div className="outfit-form">{renderSlot('shirts', 'Shirt', '1')}{renderSlot('pants', 'Pants', '2')}{renderSlot('shoes', 'Shoes', '3')}</div>{errorMessage && <p className="upload-error" role="alert">{errorMessage}</p>}<div className="customize-actions"><Button variant="outline" className="preview-button" onClick={() => void handlePreview()} disabled={!hasCompleteSelection}><Eye size={16} /> Preview</Button><Button className="pink-button" onClick={() => void handleSave()} disabled={!hasCompleteSelection || isSaving}><Save size={16} /> {isSaving ? 'Saving…' : 'Save'}</Button></div></DialogContent></Dialog>
       <Dialog open={selectionSlot !== null} onOpenChange={(open) => { if (!open) setSelectionSlot(null); }}><DialogContent className="selection-dialog"><DialogHeader><DialogTitle>Select {selectionSlot ? categoryLabels[selectionSlot] : 'item'}</DialogTitle><DialogDescription>Choose an item from your wardrobe.</DialogDescription></DialogHeader><div className="selection-grid">{items.filter((item) => item.category === selectionSlot).map((item) => <button className="selection-card" key={item.id} onClick={() => selectItem(item)}><ImageWithFallback src={item.image_url} alt={`${categoryLabels[item.category]} item`} /></button>)}{selectionSlot && items.every((item) => item.category !== selectionSlot) && <p className="selection-empty">No {categoryLabels[selectionSlot].toLowerCase()} uploaded yet.</p>}</div></DialogContent></Dialog>
       <Dialog open={isActionOpen} onOpenChange={setIsActionOpen}><DialogContent className="item-action-dialog"><DialogHeader><DialogTitle>Saved outfit</DialogTitle><DialogDescription>Preview this combined outfit image or remove it from your history.</DialogDescription></DialogHeader><div className="item-action-buttons"><Button className="pink-button" onClick={() => { if (selectedItem) setPreviewSource(selectedItem.image_url); setIsActionOpen(false); setIsPreviewOpen(true); }}>Preview</Button><Button variant="outline" className="delete-button" onClick={() => { setIsActionOpen(false); setIsDeleteOpen(true); }}><Trash2 size={16} /> Delete</Button></div></DialogContent></Dialog>
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}><DialogContent className="confirm-dialog"><DialogHeader><DialogTitle>Delete this outfit?</DialogTitle><DialogDescription>This combined image will be permanently removed from your history.</DialogDescription></DialogHeader><div className="confirm-actions"><Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button><Button className="confirm-delete" onClick={() => void handleDelete()} disabled={isDeleting}>{isDeleting ? 'Deleting…' : 'Delete'}</Button></div></DialogContent></Dialog>
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}><DialogContent className="outfit-preview-dialog"><DialogHeader><DialogTitle>Outfit Preview</DialogTitle><DialogDescription>Your shirt, pants, and shoes combined into one image.</DialogDescription></DialogHeader>{previewSource && <div className="outfit-preview-single"><ImageWithFallback src={previewSource} alt="Combined outfit preview" /></div>}</DialogContent></Dialog>
+      <Dialog open={isRegisterPromptOpen} onOpenChange={setIsRegisterPromptOpen}><DialogContent className="register-prompt-dialog"><DialogHeader><DialogTitle>กรุณาลงทะเบียนก่อนใช้งาน</DialogTitle><DialogDescription>ฟีเจอร์ Customize จำเป็นต้องมีโปรไฟล์ที่ครบถ้วน<br />กรุณากรอกข้อมูลเพื่อเริ่มใช้งาน</DialogDescription></DialogHeader><Button className="pink-button register-prompt-cta" onClick={() => { setIsRegisterPromptOpen(false); onNeedProfile(); }}>Add profile</Button></DialogContent></Dialog>
     </div>
   );
 }
