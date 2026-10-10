@@ -91,11 +91,15 @@
 .outfit-slot-remove { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #fff; color: #53627b; box-shadow: 0 2px 5px rgba(0,0,0,.12); }
 .customize-actions { padding-top: 14px; border-top: 1px solid #e7e9ee; }
 .preview-button { color: #f456aa !important; border-color: #f456aa !important; }
-.selection-dialog { max-width: 330px !important; }
-.selection-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; max-height: 390px; overflow-y: auto; }
-.selection-card { aspect-ratio: 1 / 1.12; padding: 12px; border: 0; border-radius: 15px; background: #fdf0f7; }
-.selection-card img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
-.selection-empty { grid-column: 1 / -1; padding: 30px 0; color: #7b8799; text-align: center; font-size: 13px; }
+.selection-dialog { max-width: 350px !important; padding: 24px !important; }
+.selection-dialog [data-slot="dialog-header"] { gap: 8px; margin-bottom: 4px; text-align: center; }
+.selection-dialog [data-slot="dialog-description"] { color: #718096; font-size: 12px; line-height: 1.5; }
+.selection-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; max-height: 390px; overflow-y: auto; padding: 4px; }
+.selection-card { aspect-ratio: 1 / 1.2; display: flex; min-width: 0; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid #f4d8e7; border-radius: 17px; background: #fff8fc; color: #27344a; cursor: pointer; transition: transform .2s, border-color .2s, box-shadow .2s; }
+.selection-card:hover { border-color: #f456aa; box-shadow: 0 6px 16px rgba(244,86,170,.13); transform: translateY(-2px); }
+.selection-card img { width: 100%; min-height: 0; flex: 1; object-fit: cover; border-radius: 11px; }
+.selection-card span { display: block; color: #53627b; font-size: 11px; font-weight: 700; text-align: center; }
+.selection-empty { grid-column: 1 / -1; padding: 38px 12px; color: #7b8799; text-align: center; font-size: 13px; line-height: 1.5; }
 .outfit-preview-dialog { max-width: 340px !important; padding: 20px !important; }
 .outfit-preview-dialog [data-slot="dialog-header"] { gap: 7px; text-align: center; }
 .outfit-preview-dialog [data-slot="dialog-description"] { color: #718096; font-size: 12px; line-height: 1.5; }
@@ -146,24 +150,27 @@
 [data-slot="dialog-overlay"] { position: fixed !important; inset: 0 !important; z-index: 50 !important; background: rgba(7, 16, 31, .62) !important; }
 [data-slot="dialog-content"] { position: fixed !important; top: 50% !important; left: 50% !important; z-index: 51 !important; width: calc(100% - 32px) !important; max-height: calc(100svh - 32px) !important; overflow-y: auto !important; background: #fff !important; transform: translate(-50%, -50%) !important; }
 .empty-state { min-height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #7b8799; font-size: 13px; }
-.upload-dialog { max-width: 324px !important; padding: 20px !important; border: 0 !important; border-radius: 9px !important; }
+.upload-dialog { max-width: 324px !important; padding: 20px !important; border: 0 !important; border-radius: 9px !important; overflow-x: hidden !important; }
 .upload-dialog [data-slot="dialog-header"] { gap: 8px; text-align: center; }
+.upload-dialog input[type="file"] { display: none; }
+.upload-form { min-width: 0; overflow-x: hidden; }
 .upload-dialog [data-slot="dialog-title"] { font-size: 17px; }
 .upload-dialog [data-slot="dialog-description"] { color: #718096; font-size: 12px; line-height: 1.55; }
 .upload-form { display: grid; gap: 14px; }
 .upload-form fieldset { padding: 0; border: 0; }
 .upload-form legend { margin-bottom: 7px; color: #27344a; font-size: 12px; font-weight: 700; }
-.upload-option { display: flex; align-items: center; gap: 9px; height: 25px; }
-.upload-option label { font-size: 12px; font-weight: 600; }
+.upload-option { display: flex; align-items: center; gap: 12px; min-height: 32px; }
+.upload-option label { color: #27344a; font-size: 13px; font-weight: 600; }
+.upload-dialog [data-slot="radio-group"] { gap: 5px; }
+.upload-dialog [data-slot="radio-group-item"] { display: grid; width: 22px; height: 22px; place-items: center; padding: 0; border: 2px solid #d7d9de; border-radius: 50% !important; background: #fff; box-shadow: none; overflow: hidden; }
+.upload-dialog [data-slot="radio-group-item"][data-state="checked"] { border-color: #ff7b48; }
+.upload-dialog [data-slot="radio-group-item"] [data-slot="radio-group-indicator"] { display: grid; width: 100%; height: 100%; place-items: center; }
+.upload-dialog [data-slot="radio-group-item"] [data-slot="radio-group-indicator"] svg { position: static; width: 14px; height: 14px; color: #ff7b48; fill: #ff7b48; transform: none; }
 .upload-methods { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .upload-methods input { display: none; }
 .single-upload-trigger { display: flex; min-height: 112px; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 10px; border: 1.5px solid #f8add4; border-radius: 14px; background: #fff5fa; color: #f456aa; cursor: pointer; text-align: center; }
 .single-upload-trigger span { color: #27344a; font-size: 13px; font-weight: 700; }
 .single-upload-trigger small { color: #718096; font-size: 10px; }
-.photo-method-dialog { max-width: 300px !important; padding: 20px !important; }
-.photo-method-dialog [data-slot="dialog-header"] { gap: 7px; text-align: center; }
-.photo-method-list { display: grid; gap: 9px; }
-.photo-method-list button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px; border: 1px solid #f8add4; border-radius: 10px; background: #fff5fa; color: #d62f88; font-size: 13px; font-weight: 700; text-align: left; }
 .upload-method { display: flex; min-height: 112px; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 10px 6px; border: 1.5px solid #f8add4; border-radius: 14px; background: #fff5fa; color: #f456aa; cursor: pointer; text-align: center; transition: transform .2s, border-color .2s, background .2s; }
 .upload-method:hover { transform: translateY(-2px); border-color: #f456aa; background: #ffedf7; }
 .upload-method span { color: #27344a; font-size: 11px; font-weight: 700; }

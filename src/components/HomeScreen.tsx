@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
-import { Camera, FileImage, LoaderCircle, Trash2, Upload, X } from 'lucide-react';
+import { LoaderCircle, Trash2, Upload, X } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
@@ -21,7 +21,6 @@ export function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [items, setItems] = useState<WardrobeItem[]>([]);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [isPhotoMethodOpen, setIsPhotoMethodOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
   const [isActionOpen, setIsActionOpen] = useState(false);
@@ -32,9 +31,7 @@ export function HomeScreen() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [customerKey, setCustomerKey] = useState('');
-  const cameraInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const browseInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const selectedFileUrl = useMemo(() => selectedFile ? URL.createObjectURL(selectedFile) : '', [selectedFile]);
 
@@ -77,9 +74,7 @@ export function HomeScreen() {
 
   const clearSelectedFile = () => {
     setSelectedFile(null);
-    if (cameraInputRef.current) cameraInputRef.current.value = '';
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    if (browseInputRef.current) browseInputRef.current.value = '';
+    if (photoInputRef.current) photoInputRef.current.value = '';
   };
 
   const handleUploadDialogChange = (open: boolean) => {
@@ -93,7 +88,7 @@ export function HomeScreen() {
 
   const handleUpload = async () => {
     if (!selectedCategory) {
-      setErrorMessage('Please choose an outfit type first.');
+      setErrorMessage('Please choose an outfit type before uploading');
       return;
     }
     if (!selectedFile) {
@@ -145,8 +140,7 @@ export function HomeScreen() {
         {isLoading ? <div className="empty-state"><LoaderCircle className="animate-spin" size={24} /><span>Loading wardrobe</span></div> : filteredItems.length === 0 ? <div className="empty-state"><span>{activeCategory === 'All' ? 'Your wardrobe is empty.' : `No ${categoryLabels[activeCategory]} yet.`}</span></div> : <div className="wardrobe-grid">{filteredItems.map((item) => <button className="wardrobe-card" key={item.id} onClick={() => openItemActions(item)} aria-label={`Open ${categoryLabels[item.category]} item`}><ImageWithFallback src={item.image_url} alt={`${categoryLabels[item.category]} item`} /></button>)}</div>}
       </div>
       {errorMessage && <p className="screen-error" role="alert">{errorMessage}</p>}
-      <div className="bottom-action"><Dialog open={isUploadOpen} onOpenChange={handleUploadDialogChange}><DialogTrigger asChild><Button className="pink-button"><Upload size={16} /> <span>Upload outfit</span></Button></DialogTrigger><DialogContent className="upload-dialog"><DialogHeader><DialogTitle>Upload Your Clothes</DialogTitle><DialogDescription>Choose an outfit type and add a photo of your clothes.</DialogDescription></DialogHeader><div className="upload-form"><fieldset><legend>Select outfit type:</legend><RadioGroup value={selectedCategory ?? ''} onValueChange={(value) => setSelectedCategory(value as Category)}>{uploadCategories.map((category) => <div className="upload-option" key={category}><RadioGroupItem value={category} id={`upload-${category}`} /><Label htmlFor={`upload-${category}`}>{categoryLabels[category]}</Label></div>)}</RadioGroup></fieldset>{selectedFile ? <div className="selected-upload"><img src={selectedFileUrl} alt="Selected clothing preview" /><div className="selected-upload-info"><strong>Ready to upload</strong><span>{selectedFile.name}</span><small>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</small></div><button type="button" className="selected-upload-remove" onClick={clearSelectedFile} aria-label="Remove selected image"><X size={16} /></button></div> : <button type="button" className="single-upload-trigger" onClick={() => setIsPhotoMethodOpen(true)}><Upload size={30} /><span>Add a photo</span><small>Choose upload, take photo, or file</small></button>}<input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={handleFileChange} /><input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} /><input ref={browseInputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFileChange} />{errorMessage && <p className="upload-error" role="alert">{errorMessage}</p>}<Button type="button" className="pink-button upload-submit" onClick={() => void handleUpload()} disabled={isUploading || !selectedFile || !selectedCategory}>{isUploading ? 'Uploading…' : 'Upload'}</Button></div></DialogContent></Dialog></div>
-      <Dialog open={isPhotoMethodOpen} onOpenChange={setIsPhotoMethodOpen}><DialogContent className="photo-method-dialog"><DialogHeader><DialogTitle>Add a photo</DialogTitle><DialogDescription>Choose how you want to add your clothing photo.</DialogDescription></DialogHeader><div className="photo-method-list"><button type="button" onClick={() => { setIsPhotoMethodOpen(false); cameraInputRef.current?.click(); }}><Camera size={20} /><span>Take photo</span></button><button type="button" onClick={() => { setIsPhotoMethodOpen(false); fileInputRef.current?.click(); }}><Upload size={20} /><span>Upload photo</span></button><button type="button" onClick={() => { setIsPhotoMethodOpen(false); browseInputRef.current?.click(); }}><FileImage size={20} /><span>Choose file</span></button></div></DialogContent></Dialog>
+      <div className="bottom-action"><Dialog open={isUploadOpen} onOpenChange={handleUploadDialogChange}><DialogTrigger asChild><Button className="pink-button"><Upload size={16} /> <span>Upload outfit</span></Button></DialogTrigger><DialogContent className="upload-dialog"><DialogHeader><DialogTitle>Upload Your Clothes</DialogTitle><DialogDescription>Choose an outfit type and add a photo of your clothes.</DialogDescription></DialogHeader><div className="upload-form"><fieldset><legend>Select outfit type <span className="required-mark">*</span>:</legend><RadioGroup value={selectedCategory ?? ''} onValueChange={(value) => setSelectedCategory(value as Category)}>{uploadCategories.map((category) => <div className="upload-option" key={category}><RadioGroupItem value={category} id={`upload-${category}`} /><Label htmlFor={`upload-${category}`}>{categoryLabels[category]}</Label></div>)}</RadioGroup></fieldset>{selectedFile ? <div className="selected-upload"><img src={selectedFileUrl} alt="Selected clothing preview" /><div className="selected-upload-info"><strong>Ready to upload</strong><span>{selectedFile.name}</span><small>{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</small></div><button type="button" className="selected-upload-remove" onClick={clearSelectedFile} aria-label="Remove selected image"><X size={16} /></button></div> : <button type="button" className="single-upload-trigger" onClick={() => photoInputRef.current?.click()}><Upload size={30} /><span>Add a photo</span><small>Choose a photo from your device</small></button>}<input ref={photoInputRef} type="file" accept="image/*" onChange={handleFileChange} />{errorMessage && <p className="upload-error" role="alert">{errorMessage}</p>}<Button type="button" className="pink-button upload-submit" onClick={() => void handleUpload()} disabled={isUploading || !selectedFile}>{isUploading ? 'Uploading…' : 'Upload'}</Button></div></DialogContent></Dialog></div>
 
       <Dialog open={isActionOpen} onOpenChange={setIsActionOpen}><DialogContent className="item-action-dialog"><DialogHeader><DialogTitle>What would you like to do?</DialogTitle><DialogDescription>Preview this wardrobe item or remove it from your collection.</DialogDescription></DialogHeader><div className="item-action-buttons"><Button className="pink-button" onClick={() => { setIsActionOpen(false); setIsPreviewOpen(true); }}>Preview</Button><Button variant="outline" className="delete-button" onClick={() => { setIsActionOpen(false); setIsDeleteOpen(true); }}><Trash2 size={16} /> Delete</Button></div></DialogContent></Dialog>
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}><DialogContent className="confirm-dialog"><DialogHeader><DialogTitle>Delete this item?</DialogTitle><DialogDescription>This photo will be permanently removed from your wardrobe.</DialogDescription></DialogHeader><div className="confirm-actions"><Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button><Button className="confirm-delete" onClick={() => void handleDelete()} disabled={isDeleting}>{isDeleting ? 'Deleting…' : 'Delete'}</Button></div></DialogContent></Dialog>

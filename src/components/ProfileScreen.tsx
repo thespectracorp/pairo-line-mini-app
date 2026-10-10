@@ -164,7 +164,7 @@ export function ProfileScreen({ openEditOnMount = false, onProfileSaved }: Profi
         </section>
         <div className="profile-menu">{menuItems.map(({ label, subtitle, icon: Icon }) => <button className="profile-menu-item" key={label} onClick={() => label === 'Share App' ? setIsShareOpen(true) : setIsHelpOpen(true)}><span className="profile-menu-icon"><Icon size={18} /></span><span><p className="profile-menu-label">{label}</p><p className="profile-menu-subtitle">{subtitle}</p></span></button>)}</div>
         {errorMessage && <p className="screen-error" role="alert">{errorMessage}</p>}
-        <p className="version">Pairo by Spectra v.1.2.1</p>
+        <p className="version">Pairo by Spectra v.1.2.2</p>
       </div>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="profile-edit-dialog">
